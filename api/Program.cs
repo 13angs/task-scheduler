@@ -42,6 +42,8 @@ builder.Services.AddControllers()
 );
 
 builder.Services.AddScoped<IBackgroundMessage, BackgroundMessageService>();
+builder.Services.AddScoped<IRequestValidator, RequestValidator>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

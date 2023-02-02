@@ -9,15 +9,23 @@ namespace api.Services
     {
         private readonly ILogger<BackgroundMessageService> _logger;
         private readonly ISchedulerFactory _schedulerFactory;
+        private readonly IRequestValidator _reqVal;
 
 
-        public BackgroundMessageService(ILogger<BackgroundMessageService> logger, ISchedulerFactory schedulerFactory)
+        public BackgroundMessageService(ILogger<BackgroundMessageService> logger, ISchedulerFactory schedulerFactory, IRequestValidator reqVal)
         {
             _logger = logger;
             _schedulerFactory = schedulerFactory;
+            _reqVal = reqVal;
         }
-        public async Task CreateScheduleJob(ScheduleModel model)
+        public async Task CreateScheduleJob(ScheduleModel model, string signature)
         {
+            // check the signature
+            var isValidate = _reqVal.Validate(model, signature);
+
+            if(!isValidate.Item1)
+                throw new Exception("Signature validation failed!");
+            // _logger.LogInformation($"{isValidate.Item1} | sig | {signature}");
             // define the job and tie it to our HelloJob class
             var job = JobBuilder.Create<BackgroundMessageJob>()
                 .WithIdentity(model.JobName!, model.GroupName!)

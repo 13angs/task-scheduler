@@ -4,6 +4,6 @@ namespace api.Interfaces
 {
     public interface IBackgroundMessage
     {
-        public Task CreateScheduleJob(ScheduleModel model);
+        public Task CreateScheduleJob(ScheduleModel model, string signature);
     }
 }
