@@ -11,6 +11,15 @@
 docker compose up -d
 ```
 
+### Run RabbitMQ server
+
+- cd into `compose/rabbitmq`
+- run the service
+
+```bash
+docker compose up -d
+```
+
 ### Run the api
 
 - cd into `compose/api`
