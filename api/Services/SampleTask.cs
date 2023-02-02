@@ -76,7 +76,11 @@ namespace api.Services
     {
         public async Task Execute(IJobExecutionContext context)
         {
-            await Console.Out.WriteLineAsync("Greetings from HelloJob!");
+            var jobDataMap = context.MergedJobDataMap;
+            string jobName = jobDataMap.GetString("job_name")!;
+            string groupName = jobDataMap.GetString("group_name")!;
+            string triggerName = jobDataMap.GetString("trigger_name")!;
+            await Console.Out.WriteLineAsync($"group: {groupName} | job: {jobName} | trigger: {triggerName}");
         }
     }
 }

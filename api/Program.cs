@@ -1,3 +1,6 @@
+using api.Interfaces;
+using api.Services;
+using Newtonsoft.Json.Serialization;
 using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +19,6 @@ builder.Services.AddQuartz(q =>
     q.UseMicrosoftDependencyInjectionJobFactory();
     q.UsePersistentStore(opt => {
         string cs = configuration["ConnectionStrings:Mysql"]!;
-        Console.WriteLine(cs);
         opt.UseMySql(mysql => {
             mysql.ConnectionString=cs;
             mysql.TablePrefix="QRTZ_";
@@ -28,7 +30,20 @@ builder.Services.AddQuartzHostedService(opt =>
 {
     opt.WaitForJobsToComplete = true;
 });
-// builder.Services.AddSingleton<IJobFactory, JobFactory>();
+
+
+// configure controller to use Newtonsoft as a default serializer
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft
+            .Json.ReferenceLoopHandling.Ignore)
+                .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver
+                    = new DefaultContractResolver()
+);
+
+builder.Services.AddScoped<IBackgroundMessage, BackgroundMessageService>();
+builder.Services.AddScoped<IRequestValidator, RequestValidator>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

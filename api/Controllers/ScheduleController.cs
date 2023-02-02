@@ -1,40 +1,26 @@
-using api.Services;
+using api.Interfaces;
+using api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Quartz;
 
 namespace api.Controllers
 {
     [Route("api/v1/schedules")]
     public class ScheduleController : ControllerBase
     {
-        private readonly ILogger<ScheduleController> _logger;
-        private readonly ISchedulerFactory _schedulerFactory;
+        private readonly IBackgroundMessage _bgMessage;
+        private readonly IConfiguration _configuration;
 
-        public ScheduleController(ILogger<ScheduleController> logger, ISchedulerFactory schedulerFactory)
+        public ScheduleController(IBackgroundMessage bgMessage, IConfiguration configuration)
         {
-            _logger = logger;
-            _schedulerFactory = schedulerFactory;
+            _bgMessage = bgMessage;
+            _configuration = configuration;
         }
 
-        [HttpGet]
-        public async Task<ActionResult> Get()
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] ScheduleModel model)
         {
-            // define the job and tie it to our HelloJob class
-            var job = JobBuilder.Create<HelloJob>()
-                .WithIdentity("myJob", "group1")
-                .Build();
-
-            // Trigger the job to run now, and then every 40 seconds
-            var trigger = TriggerBuilder.Create()
-                .WithIdentity("myTrigger", "group1")
-                .StartNow()
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(10)
-                    .RepeatForever())
-                .Build();
-
-            IScheduler _scheduler = await _schedulerFactory.GetScheduler();
-            await _scheduler.ScheduleJob(job, trigger);
+            string signature = Request.Headers[_configuration["Scheduler:Header"]!]!;
+            await _bgMessage.CreateScheduleJob(model, signature);
             return Ok();
         }
     }
