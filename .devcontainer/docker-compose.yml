@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  task-scheduler:
+    image: mcr.microsoft.com/devcontainers/dotnet:0-6.0
+
+    volumes:
+      - ..:/task-scheduler:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+    command: sleep infinity
+
+    networks:
+      - mysql-network
+
+networks:
+  mysql-network:
+    name: mysql-network
