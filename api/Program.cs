@@ -1,3 +1,5 @@
+using api.Interfaces;
+using api.Services;
 using Newtonsoft.Json.Serialization;
 using Quartz;
 
@@ -17,7 +19,6 @@ builder.Services.AddQuartz(q =>
     q.UseMicrosoftDependencyInjectionJobFactory();
     q.UsePersistentStore(opt => {
         string cs = configuration["ConnectionStrings:Mysql"]!;
-        Console.WriteLine(cs);
         opt.UseMySql(mysql => {
             mysql.ConnectionString=cs;
             mysql.TablePrefix="QRTZ_";
@@ -39,6 +40,8 @@ builder.Services.AddControllers()
                 .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver
                     = new DefaultContractResolver()
 );
+
+builder.Services.AddScoped<IBackgroundMessage, BackgroundMessageService>();
 
 var app = builder.Build();
 
