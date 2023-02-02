@@ -1,0 +1,3 @@
+[submodule "compose/quartz-mysql"]
+	path = compose/quartz-mysql
+	url = https://github.com/13angs/quartz-mysql.git
