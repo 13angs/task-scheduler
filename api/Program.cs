@@ -1,7 +1,9 @@
+using api.BgServices;
 using api.Interfaces;
 using api.Services;
 using Newtonsoft.Json.Serialization;
 using Quartz;
+using Simple.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 IConfiguration configuration = builder.Configuration;
@@ -44,6 +46,9 @@ builder.Services.AddControllers()
 builder.Services.AddScoped<IBackgroundMessage, BackgroundMessageService>();
 builder.Services.AddScoped<IRequestValidator, RequestValidator>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IMessagePublisher, MessagePublisher>();
+builder.Services.AddScoped<IMessageSubscriber, MessageSubscriber>();
+builder.Services.AddHostedService<BackgroundMessageCollector>();
 
 var app = builder.Build();
 
