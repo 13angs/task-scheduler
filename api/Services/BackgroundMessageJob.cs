@@ -1,5 +1,4 @@
 using Quartz;
-using Quartz.Logging;
 
 namespace api.Services
 {

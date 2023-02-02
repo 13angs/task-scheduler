@@ -1,5 +1,6 @@
 using api.Interfaces;
 using api.Models;
+using api.Stores;
 using Quartz;
 
 namespace api.Services
@@ -23,20 +24,25 @@ namespace api.Services
                 .Build();
 
             // Trigger the job to run now, and then every 40 seconds
-            var trigger = TriggerBuilder.Create()
-                .WithIdentity(model.TriggerName!, model.GroupName!)
-                .UsingJobData("group_name", model.GroupName!)
-                .UsingJobData("trigger_name", model.TriggerName!)
-                .UsingJobData("job_name", model.JobName!)
-                .WithDescription(model.Description!)
-                .StartNow()
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(10)
-                    .RepeatForever())
-                .Build();
+            
+            if (model.TriggerType!.ToUpper() == TriggerTypes.Cron)
+            {
+                var trigger = TriggerBuilder.Create()
+                    .WithIdentity(model.TriggerName!, model.GroupName!)
+                    .UsingJobData("group_name", model.GroupName!)
+                    .UsingJobData("trigger_name", model.TriggerName!)
+                    .UsingJobData("job_name", model.JobName!)
+                    .WithDescription(model.Description!)
+                    .WithCronSchedule(model.CronStr!)
+                    .ForJob(model.JobName!, model.GroupName!)
+                    .Build();
+                IScheduler _scheduler = await _schedulerFactory.GetScheduler();
+                await _scheduler.ScheduleJob(job, trigger);
+                return;
+            }
+            
+            throw new NotImplementedException();
 
-            IScheduler _scheduler = await _schedulerFactory.GetScheduler();
-            await _scheduler.ScheduleJob(job, trigger);
         }
     }
 }

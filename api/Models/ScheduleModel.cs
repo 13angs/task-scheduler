@@ -15,5 +15,11 @@ namespace api.Models
 
         [JsonProperty("description")]
         public string? Description { get; set; }
+
+        [JsonProperty("cron_str")]
+        public string? CronStr { get; set; }
+
+        [JsonProperty("trigger_type")]
+        public string? TriggerType { get; set; }
     }
 }

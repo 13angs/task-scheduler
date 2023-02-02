@@ -1,8 +1,6 @@
 using api.Interfaces;
 using api.Models;
-using api.Services;
 using Microsoft.AspNetCore.Mvc;
-using Quartz;
 
 namespace api.Controllers
 {
