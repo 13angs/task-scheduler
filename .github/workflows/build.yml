@@ -57,6 +57,8 @@ jobs:
             echo "::set-env name=IMAGE_TAG::latest"
           elif [ "${{ github.event.ref_type }}" == "tag" ]; then
             echo "::set-env name=IMAGE_TAG::${{ steps.meta.outputs.tags }}"
+          else
+            echo "::set-env name=IMAGE_TAG::latest"
           fi
 
       - name: Login to Dockerhub
