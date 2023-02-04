@@ -49,7 +49,8 @@ jobs:
           images: 13angs/task-scheduler
           
       - name: Debug Output
-        run: echo "github.event: ${{ github.event }}"
+        run: |
+          echo "github.event: ${{ toJson(github.event) }}"
 
       - name: Set Image Tag
         id: set-image-tag
