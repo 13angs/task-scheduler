@@ -1,5 +1,7 @@
 # Task scheduler using Quartz
 
+[![docker](https://github.com/13angs/task-scheduler/actions/workflows/build.yml/badge.svg)](https://github.com/13angs/task-scheduler/actions/workflows/build.yml)
+
 ## Run using docker
 
 ### Run the mysql db
