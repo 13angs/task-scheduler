@@ -10,7 +10,7 @@ services:
       - 5000:5000
     
     networks:
-      - mysql-network
+      - task-scheduler-network
     
     environment:
       - "ConnectionStrings__Mysql=Data Source=mysql;Port=3306;User ID=root;password=password;Database=QRTZ_DB;"
@@ -18,5 +18,5 @@ services:
       - "RabbitMQ__HostName=${RABBITMQ_HOST}"
 
 networks:
-  mysql-network:
-    name: mysql-network
+  task-scheduler-network:
+    name: task-scheduler-network
