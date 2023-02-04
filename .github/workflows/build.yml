@@ -54,11 +54,11 @@ jobs:
           echo "ref_type: ${{ github.event.ref_type }}"
           echo "ref: ${{ github.event.ref }}"
           if [ "${{ github.event.ref_type }}" == "branch" ]; then
-            echo "::set-env name=IMAGE_TAG::latest"
+            echo "IMAGE_TAG=latest" >> $GITHUB_ENV
           elif [ "${{ github.event.ref_type }}" == "tag" ]; then
-            echo "::set-env name=IMAGE_TAG::${{ steps.meta.outputs.tags }}"
+            echo "IMAGE_TAG=${{ steps.meta.outputs.tags }}" >> $GITHUB_ENV
           else
-            echo "::set-env name=IMAGE_TAG::latest"
+            echo "IMAGE_TAG=latest" >> $GITHUB_ENV
           fi
 
       - name: Login to Dockerhub
