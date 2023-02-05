@@ -21,5 +21,11 @@ namespace api.Models
 
         [JsonProperty("trigger_type")]
         public string? TriggerType { get; set; }
+        
+        [JsonProperty("interval_in")]
+        public string? IntervalIn { get; set; }
+
+        [JsonProperty("interval_value")]
+        public int IntervalValue { get; set; }
     }
 }

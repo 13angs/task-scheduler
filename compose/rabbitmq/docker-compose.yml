@@ -12,8 +12,8 @@ services:
       - target: 5672
         published: 5672
     networks:
-      - mysql-network
+      - task-scheduler-network
       
 networks:
-  mysql-network:
-    name: mysql-network
+  task-scheduler-network:
+    name: task-scheduler-network
