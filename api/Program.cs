@@ -49,6 +49,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IMessagePublisher, MessagePublisher>();
 builder.Services.AddScoped<IMessageSubscriber, MessageSubscriber>();
 builder.Services.AddHostedService<BackgroundMessageCollector>();
+builder.Services.AddScoped<ITriggerHandler, TriggerHandler>();
 
 var app = builder.Build();
 

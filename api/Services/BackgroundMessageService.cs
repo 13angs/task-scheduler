@@ -11,12 +11,15 @@ namespace api.Services
         private readonly ISchedulerFactory _schedulerFactory;
         private readonly IRequestValidator _reqVal;
 
+        private readonly ITriggerHandler _triggerHandler;
 
-        public BackgroundMessageService(ILogger<BackgroundMessageService> logger, ISchedulerFactory schedulerFactory, IRequestValidator reqVal)
+
+        public BackgroundMessageService(ILogger<BackgroundMessageService> logger, ISchedulerFactory schedulerFactory, IRequestValidator reqVal, ITriggerHandler triggerHandler)
         {
             _logger = logger;
             _schedulerFactory = schedulerFactory;
             _reqVal = reqVal;
+            _triggerHandler = triggerHandler;
         }
         public async Task CreateScheduleJob(ScheduleModel model, string signature)
         {
@@ -35,18 +38,9 @@ namespace api.Services
             
             if (model.TriggerType!.ToUpper() == TriggerTypes.Cron)
             {
-                var trigger = TriggerBuilder.Create()
-                    .WithIdentity(model.TriggerName!, model.GroupName!)
-                    .UsingJobData("group_name", model.GroupName!)
-                    .UsingJobData("trigger_name", model.TriggerName!)
-                    .UsingJobData("description", model.Description!)
-                    .UsingJobData("cron_str", model.CronStr!)
-                    .UsingJobData("trigger_type", model.TriggerType!)
-                    .WithDescription(model.Description!)
-                    .WithCronSchedule(model.CronStr!)
-                    .ForJob(model.JobName!, model.GroupName!)
-                    .Build();
+                
                 IScheduler _scheduler = await _schedulerFactory.GetScheduler();
+                ITrigger trigger = _triggerHandler.CreateConTrigger(model);
                 await _scheduler.ScheduleJob(job, trigger);
                 return;
             }

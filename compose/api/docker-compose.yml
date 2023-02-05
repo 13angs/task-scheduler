@@ -13,7 +13,7 @@ services:
       - task-scheduler-network
     
     environment:
-      - "ConnectionStrings__Mysql=Data Source=mysql;Port=3306;User ID=root;password=password;Database=QRTZ_DB;"
+      - "ConnectionStrings__Mysql=${DB_CONSTR}"
       - "Scheduler__Secret=${SIG_SECRET}"
       - "RabbitMQ__HostName=${RABBITMQ_HOST}"
 

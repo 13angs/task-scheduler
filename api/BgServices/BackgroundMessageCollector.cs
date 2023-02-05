@@ -43,7 +43,7 @@ namespace api.BgServices
 
             if(model != null)
             {
-                _logger.LogInformation($"group: {model.GroupName} | job: {model.JobName} | trigger: {model.TriggerName}");
+                _logger.LogInformation($"group: {model.GroupName} | job: {model.JobName} | trigger_type: {model.TriggerType}");
                 return true;
             }
             return false;
