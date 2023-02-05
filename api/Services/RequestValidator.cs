@@ -35,7 +35,9 @@ namespace api.Services
                     job_name=content.JobName, 
                     description=content.Description,
                     trigger_type=content.TriggerType,
-                    cron_str=content.CronStr
+                    cron_str=content.CronStr,
+                    interval_in=content.IntervalIn,
+                    interval_value=content.IntervalValue,
                 });
             var bytes = Encoding.UTF8.GetBytes(strContent);
 

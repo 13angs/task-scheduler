@@ -24,29 +24,42 @@ namespace api.Services
         public async Task CreateScheduleJob(ScheduleModel model, string signature)
         {
             // check the signature
-            var isValidate = _reqVal.Validate(model, signature);
-
-            if(!isValidate.Item1)
-                throw new Exception("Signature validation failed!");
-            // _logger.LogInformation($"{isValidate.Item1} | sig | {signature}");
-            // define the job and tie it to our HelloJob class
-            var job = JobBuilder.Create<BackgroundMessageJob>()
-                .WithIdentity(model.JobName!, model.GroupName!)
-                .Build();
-
-            // Trigger the job to run now, and then every 40 seconds
-            
-            if (model.TriggerType!.ToUpper() == TriggerTypes.Cron)
+            try
             {
-                
-                IScheduler _scheduler = await _schedulerFactory.GetScheduler();
-                ITrigger trigger = _triggerHandler.CreateConTrigger(model);
-                await _scheduler.ScheduleJob(job, trigger);
-                return;
-            }
-            
-            throw new NotImplementedException();
+                var isValidate = _reqVal.Validate(model, signature);
 
+                if (!isValidate.Item1)
+                    throw new Exception("Signature validation failed!");
+                // _logger.LogInformation($"{isValidate.Item1} | sig | {signature}");
+                // define the job and tie it to our HelloJob class
+                var job = JobBuilder.Create<BackgroundMessageJob>()
+                    .WithIdentity(model.JobName!, model.GroupName!)
+                    .Build();
+
+                // Trigger the job to run now, and then every 40 seconds
+
+                if (model.TriggerType!.ToUpper() == TriggerTypes.Cron)
+                {
+                    IScheduler _scheduler = await _schedulerFactory.GetScheduler();
+                    ITrigger trigger = _triggerHandler.CreateConTrigger(model);
+                    await _scheduler.ScheduleJob(job, trigger);
+                    return;
+                }
+
+                if (model.TriggerType!.ToUpper() == TriggerTypes.Interval)
+                {
+                    IScheduler _scheduler = await _schedulerFactory.GetScheduler();
+                    ITrigger trigger = _triggerHandler.CreateIntervalTrigger(model);
+                    await _scheduler.ScheduleJob(job, trigger);
+                    return;
+                }
+
+                throw new NotImplementedException();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
         }
     }
 }
