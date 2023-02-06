@@ -1,3 +1,4 @@
+using api.Exceptions;
 using api.Interfaces;
 using api.Models;
 using api.Stores;
@@ -27,7 +28,11 @@ namespace api.Services
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                throw new ErrorResponseException(
+                        StatusCodes.Status500InternalServerError, 
+                        e.Message, 
+                        new List<Error>()
+                    );
             }
         }
         public ITrigger CreateIntervalTrigger(ScheduleModel model)
@@ -85,7 +90,11 @@ namespace api.Services
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                throw new ErrorResponseException(
+                        StatusCodes.Status500InternalServerError, 
+                        e.Message, 
+                        new List<Error>()
+                    );
             }
         }
     }

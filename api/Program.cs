@@ -1,4 +1,5 @@
 using api.BgServices;
+using api.Exceptions;
 using api.Interfaces;
 using api.Services;
 using Newtonsoft.Json.Serialization;
@@ -62,7 +63,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 
+
+app.UseResponseExceptionHandler();
+
 app.MapControllers();
+
 
 // await SampleTask.Run();
 
