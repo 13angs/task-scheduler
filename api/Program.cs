@@ -22,6 +22,7 @@ builder.Services.AddQuartz(q =>
     q.UseMicrosoftDependencyInjectionJobFactory();
     q.UsePersistentStore(opt => {
         string cs = configuration["ConnectionStrings:Mysql"]!;
+        // opt.UseClustering();
         opt.UseMySql(mysql => {
             mysql.ConnectionString=cs;
             mysql.TablePrefix="QRTZ_";

@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-secret
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  rootUser: {{ .Values.quartzMysql.secrets.rootUser | b64enc }}
+  rootPass: {{ .Values.quartzMysql.secrets.rootPass | b64enc }}
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+  quartzMysqlHostname: "mysql://{{ .Values.quartzMysql.secrets.rootUser }}:{{ .Values.quartzMysql.secrets.rootPass }}@{{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-srv:{{ .Values.quartzMysql.ports.default }}"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.quartzMysql.persistence.size }}
+  storageClassName: {{ .Values.quartzMysql.persistence.storageClassName }}
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-pv
+spec:
+  capacity:
+    storage: {{ .Values.quartzMysql.persistence.size }}
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.quartzMysql.persistence.storageClassName }}
+  hostPath:
+    path: {{ .Values.quartzMysql.persistence.hostPath.path }}/{{ .Release.Namespace }}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-depl
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.quartzMysql.labels.app }}-{{ .Release.Namespace }}
+    team: {{ .Values.quartzMysql.labels.team }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.quartzMysql.labels.app }}-{{ .Release.Namespace }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.quartzMysql.labels.app }}-{{ .Release.Namespace }}
+    spec:
+      containers:
+        - name: {{ .Values.quartzMysql.name }}-con
+          image: {{ .Values.quartzMysql.image.repository }}:{{ .Values.quartzMysql.image.tag }}
+          volumeMounts:
+            - name: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-data
+              mountPath: {{ .Values.quartzMysql.persistence.mountPath }}
+          # resources:
+          #   limits:
+          #     memory: 512Mi
+          #     cpu: "1"
+          ports:
+            - containerPort: {{ .Values.quartzMysql.ports.default }} 
+          env:
+            - name: TZ
+              value: {{ .Values.quartzMysql.envs.tz }}
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-secret
+                  key: rootPass
+            - name: MYSQL_DATABASE
+              value: {{ .Values.quartzMysql.envs.quartzMysqlDb }}
+      volumes:
+      - name: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-data
+        persistentVolumeClaim:
+          claimName: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}-srv
+spec: 
+  selector:
+    app: {{ .Values.quartzMysql.name }}-{{ .Release.Namespace }}
+  ports:
+    - port: {{ .Values.quartzMysql.ports.default }} 
+      name: {{ .Values.quartzMysql.name }}
+      targetPort: {{ .Values.quartzMysql.ports.default }} 
+      nodePort: 30003
+  type: NodePort

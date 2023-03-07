@@ -4,7 +4,7 @@ services:
   api:
     image: 13angs/task-scheduler:latest
     build:
-      context: ../../api
+      context: ../../../api
       dockerfile: ./Dockerfile
     ports:
       - 5000:5000
@@ -12,10 +12,10 @@ services:
     networks:
       - task-scheduler-network
     
-    environment:
-      - "ConnectionStrings__Mysql=${DB_CONSTR}"
-      - "Scheduler__Secret=${SIG_SECRET}"
-      - "RabbitMQ__HostName=${RABBITMQ_HOST}"
+    # environment:
+    #   - "ConnectionStrings__Mysql=${DB_CONSTR}"
+    #   - "Scheduler__Secret=${SIG_SECRET}"
+    #   - "RabbitMQ__HostName=${RABBITMQ_HOST}"
 
 networks:
   task-scheduler-network:

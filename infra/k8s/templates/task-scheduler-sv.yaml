@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.taskSchedulerSv.name }}-{{ .Release.Namespace }}-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+  connectionStringsMysql: "Data Source=quartz-mysql-{{ .Release.Namespace }}-srv;Port=3306;User ID={{ .Values.taskSchedulerSv.secrets.rootUser }};password={{ .Values.taskSchedulerSv.secrets.rootPass }};Database={{ .Values.taskSchedulerSv.envs.mysqlDb }};"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.taskSchedulerSv.name }}-{{ .Release.Namespace }}-depl
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.taskSchedulerSv.labels.app }}-{{ .Release.Namespace }}
+    team: {{ .Values.taskSchedulerSv.labels.team }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.taskSchedulerSv.labels.app }}-{{ .Release.Namespace }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.taskSchedulerSv.labels.app }}-{{ .Release.Namespace }}
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: {{ .Values.taskSchedulerSv.name }}-con
+          image: {{ .Values.taskSchedulerSv.image.repository }}:{{ .Values.taskSchedulerSv.image.tag }}
+          # resources:
+          #   limits:
+          #     memory: 512Mi
+          #     cpu: "1"
+          ports:
+            - containerPort: {{ .Values.taskSchedulerSv.ports.default }} 
+          env:
+            - name: TZ
+              value: {{ .Values.taskSchedulerSv.envs.tz }}
+            - name: ConnectionStrings__Mysql
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.taskSchedulerSv.name }}-{{ .Release.Namespace }}-configmap
+                  key: connectionStringsMysql
+            - name: Scheduler__Secret
+              value: {{ .Values.taskSchedulerSv.envs.schedulerSecret }}
+            - name: RABBITMQ_HOST
+              value: rabbitmq-{{ .Release.Namespace }}-configmap
+            
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.taskSchedulerSv.name }}-{{ .Release.Namespace }}-srv
+spec: 
+  selector:
+    app: {{ .Values.taskSchedulerSv.name }}-{{ .Release.Namespace }}
+  ports:
+    - port: {{ .Values.taskSchedulerSv.ports.default }} 
+      name: {{ .Values.taskSchedulerSv.name }}
+      targetPort: {{ .Values.taskSchedulerSv.ports.default }} 
