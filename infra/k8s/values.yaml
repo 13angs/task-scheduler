@@ -1,0 +1,72 @@
+rabbitmq:
+  name: rabbitmq
+  image:
+    repository: rabbitmq
+    tag: 3-management
+  labels:
+    app: rabbitmq
+    team: backend
+  secrets:
+    defaultUser: "admin"
+    defaultPass: "0242ac120002"
+  configMaps:
+    appconfig:
+      key1: "value1"
+      key2: "value2"
+  persistence:
+    size: 10Gi
+    storageClassName: standard
+    hostPath:
+      path: /mnt/data/rabbitmq
+  ports:
+    amqp: 5672
+    management: 15672
+
+quartzMysql:
+  name: quartz-mysql
+  image:
+    repository: 13angs/quartz-mysql
+    tag: latest
+  labels:
+    app: quartz-mysql
+    team: backend
+  secrets:
+    rootUser: "root"
+    rootPass: "0242ac120002"
+  configMaps:
+    appconfig:
+      key1: "value1"
+      key2: "value2"
+  persistence:
+    size: 2Gi
+    storageClassName: standard
+    hostPath:
+      path: /mnt/data/quarz-mysql
+    mountPath: /var/lib/mysql
+  ports:
+    default: 3306
+  envs:
+    tz: Asia/Bangkok
+    mysqlDb: QRTZ_DB
+
+taskSchedulerSv:
+  name: task-scheduler
+  image:
+    repository: 13angs/task-scheduler
+    tag: latest
+  labels:
+    app: task-scheduler
+    team: backend
+  secrets:
+    rootUser: "root"
+    rootPass: "0242ac120002"
+  configMaps:
+    appconfig:
+      key1: "value1"
+      key2: "value2"
+  ports:
+    default: 5000
+  envs:
+    tz: Asia/Bangkok
+    mysqlDb: QRTZ_DB
+    schedulerSecret: ZQSk8064EuKLvNhRAhTNV8Fyg68x5I1m

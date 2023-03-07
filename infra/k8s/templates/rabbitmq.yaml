@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.rabbitmq.name }}-{{ .Release.Namespace }}-secret
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  defaultUser: {{ .Values.rabbitmq.secrets.defaultUser | b64enc }}
+  defaultPass: {{ .Values.rabbitmq.secrets.defaultPass | b64enc }}
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.rabbitmq.name }}-{{ .Release.Namespace }}-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+  rabbitmqHostname: "amqp://{{ .Values.rabbitmq.secrets.defaultUser }}:{{ .Values.rabbitmq.secrets.defaultPass }}@{{ .Values.rabbitmq.name }}-{{ .Release.Namespace }}-srv:5672"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.rabbitmq.name }}-{{ .Release.Namespace }}-depl
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.rabbitmq.labels.app }}-{{ .Release.Namespace }}
+    team: {{ .Values.rabbitmq.labels.team }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.rabbitmq.labels.app }}-{{ .Release.Namespace }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.rabbitmq.labels.app }}-{{ .Release.Namespace }}
+    spec:
+      containers:
+        - name: {{ .Values.rabbitmq.name }}-con
+          image: {{ .Values.rabbitmq.image.repository }}:{{ .Values.rabbitmq.image.tag }}
+          ports:
+            - containerPort: {{ .Values.rabbitmq.ports.amqp }} 
+            - containerPort: {{ .Values.rabbitmq.ports.management }}
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rabbitmq.name }}-{{ .Release.Namespace }}-secret
+                  key: defaultUser
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rabbitmq.name }}-{{ .Release.Namespace }}-secret
+                  key: defaultPass
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.rabbitmq.name }}-{{ .Release.Namespace }}-srv
+spec: 
+  selector:
+    app: {{ .Values.rabbitmq.name }}-{{ .Release.Namespace }}
+  ports:
+    - port: {{ .Values.rabbitmq.ports.amqp }} 
+      name: amqp
+      targetPort: {{ .Values.rabbitmq.ports.amqp }} 
+      nodePort: 30001
+    - port: {{ .Values.rabbitmq.ports.management }}
+      name: management
+      targetPort: {{ .Values.rabbitmq.ports.management }}
+      nodePort: 30002
+  type: NodePort
