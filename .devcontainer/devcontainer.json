@@ -3,11 +3,18 @@
 {
 	"name": "C# (.NET)",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	// "image": "mcr.microsoft.com/devcontainers/dotnet:0-6.0",
-	"dockerComposeFile": "docker-compose.yml",
-	"workspaceFolder": "/task-scheduler",
-	"shutdownAction": "stopCompose",
-	"service": "task-scheduler",
+	"image": "mcr.microsoft.com/devcontainers/dotnet:0-6.0",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"enableNonRootDocker": "true",
+			"moby": "true"
+		},
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+			"version": "latest",
+			"helm": "latest",
+			"minikube": "latest"
+		}
+	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
@@ -24,13 +31,7 @@
 	// "postCreateCommand": "dotnet restore",
 
 	// Configure tool-specific properties.
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"kreativ-software.csharpextensions"
-			]
-		}
-	}
+	// "customizations": {},
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
